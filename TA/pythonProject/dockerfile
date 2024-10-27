@@ -1,0 +1,30 @@
+FROM --platform=linux/amd64 python:3.13
+WORKDIR /usr/local/app
+
+# install essential tools
+RUN apt-get update && apt-get install unzip
+
+# install LATEST Chrome 130.X.
+RUN wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb \
+    && apt-get install ./google-chrome-stable_current_amd64.deb -y
+
+# download LATEST Chrome Driver 114.X.
+RUN wget https://chromedriver.storage.googleapis.com/114.0.5735.90/chromedriver_linux64.zip \
+    && unzip chromedriver_linux64.zip \
+    && rm chromedriver_linux64.zip
+
+# install the application dependencies
+COPY pythonProject/requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install pytest
+RUN pip install chromedriver-autoinstaller
+
+ENV PYTHONPATH="${PYTHONPATH}:/usr/src/app"
+
+# Copy in the source code
+COPY ./pythonProject ./ta
+EXPOSE 5000
+
+CMD dir \
+   && python -m pytest ./ta/tests --junitxml="reports/insider-report.xml"
+

@@ -1,0 +1,15 @@
+FROM python:3.13
+WORKDIR /usr/local/app
+
+# install packages
+COPY pythonProject/requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install pytest
+
+# copy tests to container
+COPY ./pythonProject ./ta
+EXPOSE 4444
+
+# run command pytest
+CMD dir \
+   && python -m pytest ./ta/tests --junitxml="reports/insider-report.xml"
